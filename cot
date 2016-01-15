@@ -36,7 +36,7 @@ from subprocess import Popen, PIPE
 
 
 # meta data
-__version__ = '2.2.0'
+__version__ = '2.2.1'
 __description__ = 'command-line utility for CotEditor.'
 
 
