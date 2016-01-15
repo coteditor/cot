@@ -180,7 +180,7 @@ def main(args, stdin):
     # create document
     if args.file:
         # open file
-        path = os.path.abspath(args.file.name)
+        path = os.path.realpath(args.file.name)
         app.open(path)
 
     elif stdin:
