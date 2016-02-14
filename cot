@@ -91,11 +91,6 @@ class ScriptableApplication(object):
         self.name = name
         self.bundle_identifier = run_osascript('id of app \"{}\"'.format(name))
 
-    @property
-    def is_running(self):
-        system_events = ScriptableApplication("System Events")
-        system_events.tell('unix id of processes contains {}'.format(self._pid))
-
     def tell(self, script):
         """Tell OSA command to the application.
 
@@ -162,8 +157,10 @@ class ScriptableApplication(object):
         Returns:
             result (bool): Window exists?
         """
-        result = self.tell('(first window whose id is {}) is visible'.format(window_id))
+        script = '(first window whose id is {}) is visible'.format(window_id)
+        result = self.tell(script)
         return result == 'true'
+
 
 # MARK: Args Parse
 
