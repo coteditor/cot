@@ -91,7 +91,7 @@ class ScriptableApplication(object):
 
     def __init__(self, name):
         self.name = name
-        self.bundle_identifier = run_osascript('id of app \"{}\"'.format(name))
+        self.bundle_identifier = run_osascript('id of app "{}"'.format(name))
 
     def tell(self, script):
         """Tell OSA command to the application.
