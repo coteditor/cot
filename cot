@@ -68,14 +68,17 @@ def bundle_path():
 
 # MARK: OSA Script
 
-def run_osascript(script):
+def run_osascript(script, is_async=False):
     """Run osascript.
 
     Args:
         script (str): Osascript.
+        is_async (bool): If need to wait for finish.
     Returns:
         result (str): Return value of the script.
     """
+    if is_async:
+        script = 'ignoring application responses\n' + script + '\nend ignoring'
     p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     stdout, _ = p.communicate(script.encode())
     if p.returncode:
@@ -93,7 +96,7 @@ class ScriptableApplication(object):
         self.name = name
         self.bundle_identifier = run_osascript('id of app "{}"'.format(name))
 
-    def tell(self, script):
+    def tell(self, script, is_async=False):
         """Tell OSA command to the application.
 
         Args:
@@ -102,7 +105,7 @@ class ScriptableApplication(object):
             result (str): Return value of the script.
         """
         script = 'tell app "{}" to {}'.format(self.name, script)
-        return run_osascript(script)
+        return run_osascript(script, is_async)
 
     def launch(self, background=False):
         """Launch application.
@@ -128,7 +131,9 @@ class ScriptableApplication(object):
             path (str): Path to file.
         """
         path = path.replace('"', '\\"')
-        self.tell('open POSIX file "{}"'.format(path))
+        self.tell('open POSIX file "{}"'.format(path), is_async=True)
+        # -> Opening a file that is already opened in the application tekes
+        #    somehow extremely long time. So, we don't wait.
 
     def tell_document(self, script, index=1):
         """Tell OSA command to a document of the application.
