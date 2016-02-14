@@ -131,11 +131,21 @@ class ScriptableApplication(object):
 
         Args:
             script (str): OSA command
-            number (int): Index number of the document to handle.
+            index (int): Index number of the document to handle (1-based).
         Returns:
             result (str): Return value of the script.
         """
         return self.tell('tell document {} to {}'.format(index, script))
+
+    def window_id(self, index=1):
+        """Get window identifier.
+
+        Args:
+            index (int): Index number of the window to get id (1-based).
+        Returns:
+            window_id (str): Identifier of document's window opened.
+        """
+        return self.tell('id of window {}'.format(index))
 
 
 # MARK: Args Parse
