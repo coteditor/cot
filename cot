@@ -10,7 +10,7 @@ Created by 1024jp on 2015-08-12.
 
 ------------------------------------------------------------------------------
 
-© 2015 1024jp
+© 2015-2016 1024jp
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ from subprocess import Popen, PIPE
 
 
 # meta data
-__version__ = '2.2.1'
+__version__ = '2.3.0-alpha'
 __description__ = 'command-line utility for CotEditor.'
 
 
@@ -97,6 +97,17 @@ class ScriptableApplication(object):
         """
         script = 'tell app "{}" to {}'.format(self.name, script)
         return run_osascript(script)
+
+    def launch(self, background=False):
+        """Launch application.
+
+        Args:
+            background (bool): Open in background?
+        """
+        if background:
+            self.tell('run')
+        else:
+            self.tell('activate')
 
     def open(self, path):
         """Open given file path in the application.
@@ -172,10 +183,7 @@ def main(args, stdin):
     app = ScriptableApplication(app_identifier)
 
     # launch
-    if args.background:
-        app.tell('run')
-    else:
-        app.tell('activate')
+    app.launch(background=args.background)
 
     # create document
     if args.file:
