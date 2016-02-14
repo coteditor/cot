@@ -216,7 +216,13 @@ def parse_args():
                         help="Jump to specific column in opened document."
                         )
 
-    return parser.parse_args()
+    args = parser.parse_args()
+
+    # just close
+    if args.file:
+        args.file.close()
+
+    return args
 
 
 # MARK: - Main
