@@ -33,7 +33,7 @@ import fcntl
 import os
 import sys
 import time
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, CalledProcessError
 
 
 # meta data
@@ -78,6 +78,8 @@ def run_osascript(script):
     """
     p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     stdout, _ = p.communicate(script.encode())
+    if p.returncode:
+        raise CalledProcessError(p.returncode, script)
 
     return stdout.decode().rstrip('\n')
 
@@ -158,7 +160,11 @@ class ScriptableApplication(object):
             result (bool): Window exists?
         """
         script = '(first window whose id is {}) is visible'.format(window_id)
-        result = self.tell(script)
+        result = None
+        try:
+            result = self.tell(script)
+        except CalledProcessError:
+            pass
         return result == 'true'
 
 
