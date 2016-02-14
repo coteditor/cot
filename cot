@@ -83,6 +83,7 @@ def run_osascript(script):
 class ScriptableApplication(object):
     """OSA-Scriptable OS X application object.
     """
+    unix_id = None
 
     def __init__(self, name):
         self.name = name
@@ -109,6 +110,12 @@ class ScriptableApplication(object):
             self.tell('run')
         else:
             self.tell('activate')
+
+        # get unix id
+        system_events = ScriptableApplication("System Events")
+        script = ('unix id of processes whose bundle identifier is "{}"'
+                  .format(self.bundle_identifier))
+        self.unix_id = system_events.tell(script)
 
     def open(self, path):
         """Open given file path in the application.
