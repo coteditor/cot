@@ -32,6 +32,7 @@ import argparse
 import fcntl
 import os
 import sys
+import time
 from subprocess import Popen, PIPE
 
 
@@ -42,6 +43,7 @@ __description__ = 'command-line utility for CotEditor.'
 
 # constants
 APPLICATION_NAME = 'CotEditor'
+WAIT_INTERVAL = 0.5
 
 
 # MARK: Bundle
@@ -74,7 +76,7 @@ def run_osascript(script):
     Returns:
         result (str): Return value of the script.
     """
-    p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE)
+    p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     stdout, _ = p.communicate(script.encode())
 
     return stdout.decode().rstrip('\n')
@@ -83,11 +85,16 @@ def run_osascript(script):
 class ScriptableApplication(object):
     """OSA-Scriptable OS X application object.
     """
-    unix_id = None
+    _pid = None
 
     def __init__(self, name):
         self.name = name
         self.bundle_identifier = run_osascript('id of app \"{}\"'.format(name))
+
+    @property
+    def is_running(self):
+        system_events = ScriptableApplication("System Events")
+        system_events.tell('unix id of processes contains {}'.format(self._pid))
 
     def tell(self, script):
         """Tell OSA command to the application.
@@ -115,7 +122,7 @@ class ScriptableApplication(object):
         system_events = ScriptableApplication("System Events")
         script = ('unix id of processes whose bundle identifier is "{}"'
                   .format(self.bundle_identifier))
-        self.unix_id = system_events.tell(script)
+        self._pid = system_events.tell(script)
 
     def open(self, path):
         """Open given file path in the application.
@@ -147,6 +154,16 @@ class ScriptableApplication(object):
         """
         return self.tell('id of window {}'.format(index))
 
+    def window_exists(self, window_id):
+        """Check if window exists.
+
+        Args:
+            window_id (str): identifier of window to check existance.
+        Returns:
+            result (bool): Window exists?
+        """
+        result = self.tell('(first window whose id is {}) is visible'.format(window_id))
+        return result == 'true'
 
 # MARK: Args Parse
 
@@ -171,6 +188,11 @@ def parse_args():
     parser.add_argument('-v', '--version',
                         action='version',
                         version=__version__
+                        )
+    parser.add_argument('-w', '--wait',
+                        action='store_true',
+                        default=False,
+                        help="Wait for opened file to be closed."
                         )
     parser.add_argument('-g', '--background',
                         action='store_true',
@@ -253,6 +275,12 @@ def main(args, stdin):
 
         # jump
         app.tell_document('scroll to caret')
+
+    # wait for window close
+    if args.wait and (args.file or stdin or args.new):
+        window_id = app.window_id()
+        while app.window_exists(window_id):
+            time.sleep(WAIT_INTERVAL)
 
 
 if __name__ == "__main__":

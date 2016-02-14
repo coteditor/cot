@@ -2,6 +2,12 @@
 Change Log
 ==========================
 
+develop
+--------------------------
+
+- Add `--wait` option to wait until a newly opened window closes.
+
+
 2.2.1
 --------------------------
 
