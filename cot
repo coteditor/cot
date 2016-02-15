@@ -10,7 +10,7 @@ Created by 1024jp on 2015-08-12.
 
 ------------------------------------------------------------------------------
 
-© 2015 1024jp
+© 2015-2016 1024jp
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -32,16 +32,23 @@ import argparse
 import fcntl
 import os
 import sys
-from subprocess import Popen, PIPE
+import time
+from subprocess import Popen, PIPE, CalledProcessError
 
 
 # meta data
-__version__ = '2.2.1'
+__version__ = '2.3.0'
 __description__ = 'command-line utility for CotEditor.'
 
 
 # constants
 APPLICATION_NAME = 'CotEditor'
+WAIT_INTERVAL = 0.5
+
+
+# set encoding for file path
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 
 # MARK: Bundle
@@ -66,28 +73,35 @@ def bundle_path():
 
 # MARK: OSA Script
 
-def run_osascript(script):
+def run_osascript(script, is_async=False):
     """Run osascript.
 
     Args:
         script (str): Osascript.
+        is_async (bool): If need to wait for finish.
     Returns:
         result (str): Return value of the script.
     """
-    p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE)
-    stdout, _ = p.communicate(script.encode())
+    if is_async:
+        script = 'ignoring application responses\n' + script + '\nend ignoring'
+    p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    stdout, _ = p.communicate(script.encode('utf-8'))
+    if p.returncode:
+        raise CalledProcessError(p.returncode, script)
 
-    return stdout.decode().rstrip('\n')
+    return stdout.decode('utf-8').rstrip('\n')
 
 
 class ScriptableApplication(object):
     """OSA-Scriptable OS X application object.
     """
+    _pid = None
 
     def __init__(self, name):
         self.name = name
+        self.bundle_identifier = run_osascript('id of app "{}"'.format(name))
 
-    def tell(self, script):
+    def tell(self, script, is_async=False):
         """Tell OSA command to the application.
 
         Args:
@@ -96,7 +110,24 @@ class ScriptableApplication(object):
             result (str): Return value of the script.
         """
         script = 'tell app "{}" to {}'.format(self.name, script)
-        return run_osascript(script)
+        return run_osascript(script, is_async)
+
+    def launch(self, background=False):
+        """Launch application.
+
+        Args:
+            background (bool): Open in background?
+        """
+        if background:
+            self.tell('run')
+        else:
+            self.tell('activate')
+
+        # get unix id
+        system_events = ScriptableApplication("System Events")
+        script = ('unix id of processes whose bundle identifier is "{}"'
+                  .format(self.bundle_identifier))
+        self._pid = system_events.tell(script)
 
     def open(self, path):
         """Open given file path in the application.
@@ -105,18 +136,46 @@ class ScriptableApplication(object):
             path (str): Path to file.
         """
         path = path.replace('"', '\\"')
-        self.tell('open POSIX file "{}"'.format(path))
+        self.tell('open POSIX file "{}"'.format(path), is_async=True)
+        # -> Opening a file that is already opened in the application tekes
+        #    somehow extremely long time. So, we don't wait.
 
     def tell_document(self, script, index=1):
         """Tell OSA command to a document of the application.
 
         Args:
             script (str): OSA command
-            number (int): Index number of the document to handle.
+            index (int): Index number of the document to handle (1-based).
         Returns:
             result (str): Return value of the script.
         """
         return self.tell('tell document {} to {}'.format(index, script))
+
+    def window_id(self, index=1):
+        """Get window identifier.
+
+        Args:
+            index (int): Index number of the window to get id (1-based).
+        Returns:
+            window_id (str): Identifier of document's window opened.
+        """
+        return self.tell('id of window {}'.format(index))
+
+    def window_exists(self, window_id):
+        """Check if window exists.
+
+        Args:
+            window_id (str): identifier of window to check existance.
+        Returns:
+            result (bool): Window exists?
+        """
+        script = '(first window whose id is {}) is visible'.format(window_id)
+        result = None
+        try:
+            result = self.tell(script)
+        except CalledProcessError:
+            pass
+        return result == 'true'
 
 
 # MARK: Args Parse
@@ -135,7 +194,7 @@ def parse_args():
                         type=argparse.FileType('rU'),
                         metavar='FILE',
                         nargs='?',
-                        help="Path to file to open."
+                        help="path to file to open"
                         )
 
     # set optional arguments
@@ -143,26 +202,37 @@ def parse_args():
                         action='version',
                         version=__version__
                         )
+    parser.add_argument('-w', '--wait',
+                        action='store_true',
+                        default=False,
+                        help="wait for opened file to be closed"
+                        )
     parser.add_argument('-g', '--background',
                         action='store_true',
                         default=False,
-                        help="Do not bring the application to the foreground."
+                        help="do not bring the application to the foreground"
                         )
     parser.add_argument('-n', '--new',
                         action='store_true',
                         default=False,
-                        help="Create a new blank document."
+                        help="create a new blank document"
                         )
     parser.add_argument('-l', '--line',
                         type=int,
-                        help="Jump to specific line in opened document."
+                        help="jump to specific line in opened document"
                         )
     parser.add_argument('-c', '--column',
                         type=int,
-                        help="Jump to specific column in opened document."
+                        help="jump to specific column in opened document"
                         )
 
-    return parser.parse_args()
+    args = parser.parse_args()
+
+    # just close
+    if args.file:
+        args.file.close()
+
+    return args
 
 
 # MARK: - Main
@@ -172,10 +242,7 @@ def main(args, stdin):
     app = ScriptableApplication(app_identifier)
 
     # launch
-    if args.background:
-        app.tell('run')
-    else:
-        app.tell('activate')
+    app.launch(background=args.background)
 
     # create document
     if args.file:
@@ -227,6 +294,12 @@ def main(args, stdin):
 
         # jump
         app.tell_document('scroll to caret')
+
+    # wait for window close
+    if args.wait and (args.file or stdin or args.new):
+        window_id = app.window_id()
+        while app.window_exists(window_id):
+            time.sleep(WAIT_INTERVAL)
 
 
 if __name__ == "__main__":
