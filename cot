@@ -46,6 +46,11 @@ APPLICATION_NAME = 'CotEditor'
 WAIT_INTERVAL = 0.5
 
 
+# set encoding for file path
+reload(sys)
+sys.setdefaultencoding('utf8')
+
+
 # MARK: Bundle
 
 def bundle_path():
@@ -80,11 +85,11 @@ def run_osascript(script, is_async=False):
     if is_async:
         script = 'ignoring application responses\n' + script + '\nend ignoring'
     p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    stdout, _ = p.communicate(script.encode())
+    stdout, _ = p.communicate(script.encode('utf-8'))
     if p.returncode:
         raise CalledProcessError(p.returncode, script)
 
-    return stdout.decode().rstrip('\n')
+    return stdout.decode('utf-8').rstrip('\n')
 
 
 class ScriptableApplication(object):
