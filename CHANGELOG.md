@@ -2,11 +2,11 @@
 Change Log
 ==========================
 
-develop
+2.3.1
 --------------------------
 
 - Fix an issue where `--line` option didn't work under specific environments.
-- Fix an issue where command could failed if the dafault Python is Python3.
+- Fix an issue where command could failed if the default Python is Python3.
 - Fix an issue where `--line` and `--column` options didn't move cursor to the desired location if file has blank lines at the end.
 
 
