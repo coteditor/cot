@@ -90,7 +90,14 @@ def run_osascript(script, is_async=False):
     if p.returncode:
         raise CalledProcessError(p.returncode, script)
 
-    return stdout.decode('utf-8').rstrip('\n')
+    result = stdout.decode('utf-8')
+
+    # strip the last line ending
+    #   -> Don't use `rstrip` since it removes multiple line endings.
+    if result.endswith('\n'):
+        result = result[:-1]
+
+    return result
 
 
 class ScriptableApplication(object):
