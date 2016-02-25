@@ -37,7 +37,7 @@ from subprocess import Popen, PIPE, CalledProcessError
 
 
 # meta data
-__version__ = '2.3.0'
+__version__ = '2.3.1'
 __description__ = 'command-line utility for CotEditor.'
 
 
@@ -47,8 +47,9 @@ WAIT_INTERVAL = 0.5
 
 
 # set encoding for file path
-reload(sys)
-sys.setdefaultencoding('utf8')
+if sys.version_info < (3, 0):
+    reload(sys)
+    sys.setdefaultencoding('utf8')
 
 
 # MARK: Bundle
@@ -89,7 +90,14 @@ def run_osascript(script, is_async=False):
     if p.returncode:
         raise CalledProcessError(p.returncode, script)
 
-    return stdout.decode('utf-8').rstrip('\n')
+    result = stdout.decode('utf-8')
+
+    # strip the last line ending
+    #   -> Don't use `rstrip` since it removes multiple line endings.
+    if result.endswith('\n'):
+        result = result[:-1]
+
+    return result
 
 
 class ScriptableApplication(object):
@@ -267,7 +275,7 @@ def main(args, stdin):
     # jump to location
     if args.line is not None or args.column is not None:
         contents = app.tell_document('contents')
-        lines = contents.splitlines(keepends=True)
+        lines = contents.splitlines(True)  # turn on keepends flag
 
         # sanitize line number
         line = args.line or 1  # line number starts with 1
