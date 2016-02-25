@@ -2,6 +2,12 @@
 Change Log
 ==========================
 
+develop
+--------------------------
+
+- Fix an issue where command could failed if the dafault Python is Python3.
+
+
 2.3.0
 --------------------------
 
