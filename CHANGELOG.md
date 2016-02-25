@@ -5,6 +5,7 @@ Change Log
 develop
 --------------------------
 
+- Fix an issue where `--line` option didn't work under specific environments.
 - Fix an issue where command could failed if the dafault Python is Python3.
 
 

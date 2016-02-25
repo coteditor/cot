@@ -268,7 +268,7 @@ def main(args, stdin):
     # jump to location
     if args.line is not None or args.column is not None:
         contents = app.tell_document('contents')
-        lines = contents.splitlines(keepends=True)
+        lines = contents.splitlines(True)  # turn on keepends flag
 
         # sanitize line number
         line = args.line or 1  # line number starts with 1
