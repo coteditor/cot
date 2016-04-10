@@ -2,6 +2,12 @@
 Change Log
 ==========================
 
+2.4.0
+--------------------------
+
+- Create a new file if a non-existent file path is passed in with `--new` option.
+
+
 2.3.1
 --------------------------
 
