@@ -2,6 +2,9 @@
 `cot` command-line tool
 =============================
 
+The command-line helper tool for [CotEditor](https://coteditor.com).
+
+
 License
 -----------------------------
 © 2015-2016 1024jp.

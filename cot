@@ -29,6 +29,7 @@ limitations under the License.
 from __future__ import print_function
 
 import argparse
+import errno
 import fcntl
 import os
 import sys
@@ -37,7 +38,7 @@ from subprocess import Popen, PIPE, CalledProcessError
 
 
 # meta data
-__version__ = '2.3.1'
+__version__ = '2.4.0'
 __description__ = 'command-line utility for CotEditor.'
 
 
@@ -199,7 +200,7 @@ def parse_args():
 
     # set positional argument
     parser.add_argument('file',
-                        type=argparse.FileType('rU'),
+                        type=str,
                         metavar='FILE',
                         nargs='?',
                         help="path to file to open"
@@ -236,9 +237,23 @@ def parse_args():
 
     args = parser.parse_args()
 
-    # just close
+    # check file existance and create if needed
     if args.file:
-        args.file.close()
+        open_mode = 'r'
+        if args.new and not os.path.exists(args.file):
+            open_mode = 'w'   # overwrite mode to create new file
+            # create directory if not exists yet
+            dirpath = os.path.dirname(args.file)
+            try:
+                os.makedirs(dirpath)
+            except OSError as err:  # guard against race condition
+                if err.errno != errno.EEXIST:
+                    parser.error("argument FILE: {}".format(err))
+        # check readability or create new one
+        try:
+            open(args.file, open_mode).close()
+        except IOError as err:
+            parser.error("argument FILE: {}".format(err))
 
     return args
 
@@ -255,7 +270,7 @@ def main(args, stdin):
     # create document
     if args.file:
         # open file
-        path = os.path.realpath(args.file.name)
+        path = os.path.realpath(args.file)
         app.open(path)
 
     elif stdin:
