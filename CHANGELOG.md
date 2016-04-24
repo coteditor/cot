@@ -2,6 +2,12 @@
 Change Log
 ==========================
 
+2.4.1
+--------------------------
+
+- Fix an issue where creating new blank file could fail.
+
+
 2.4.0
 --------------------------
 
