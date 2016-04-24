@@ -38,7 +38,7 @@ from subprocess import Popen, PIPE, CalledProcessError
 
 
 # meta data
-__version__ = '2.4.0'
+__version__ = '2.4.1'
 __description__ = 'command-line utility for CotEditor.'
 
 
@@ -244,11 +244,12 @@ def parse_args():
             open_mode = 'w'   # overwrite mode to create new file
             # create directory if not exists yet
             dirpath = os.path.dirname(args.file)
-            try:
-                os.makedirs(dirpath)
-            except OSError as err:  # guard against race condition
-                if err.errno != errno.EEXIST:
-                    parser.error("argument FILE: {}".format(err))
+            if dirpath:
+                try:
+                    os.makedirs(dirpath)
+                except OSError as err:  # guard against race condition
+                    if err.errno != errno.EEXIST:
+                        parser.error("argument FILE: {}".format(err))
         # check readability or create new one
         try:
             open(args.file, open_mode).close()
