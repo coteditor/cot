@@ -202,7 +202,7 @@ def parse_args():
     parser.add_argument('files',
                         type=str,
                         metavar='FILE',
-                        nargs='*',  # allow wildecard
+                        nargs='*',  # allow wildcard
                         help="path to file to open"
                         )
 

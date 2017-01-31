@@ -5,7 +5,7 @@ Change Log
 2.5.0
 --------------------------
 
-- Enable using wildecard for file path argument.
+- Enable using wildcard for file path argument.
 
 
 2.4.1
