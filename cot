@@ -236,7 +236,7 @@ def parse_args():
                         )
 
     args = parser.parse_args()
-    
+
     # create a flag specifying if create a new blank window or file
     args.new_window = args.new and not args.files
 
