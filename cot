@@ -4,19 +4,19 @@
 cot
 
 CotEditor
-http://coteditor.com
+https://coteditor.com
 
 Created by 1024jp on 2015-08-12.
 
 ------------------------------------------------------------------------------
 
-© 2015-2016 1024jp
+© 2015-2017 1024jp
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+https://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,7 +38,7 @@ from subprocess import Popen, PIPE, CalledProcessError
 
 
 # meta data
-__version__ = '2.4.1'
+__version__ = '2.5.0'
 __description__ = 'command-line utility for CotEditor.'
 
 
@@ -199,10 +199,10 @@ def parse_args():
     parser = argparse.ArgumentParser(description=__description__)
 
     # set positional argument
-    parser.add_argument('file',
+    parser.add_argument('files',
                         type=str,
                         metavar='FILE',
-                        nargs='?',
+                        nargs='*',  # allow wildcard
                         help="path to file to open"
                         )
 
@@ -237,13 +237,18 @@ def parse_args():
 
     args = parser.parse_args()
 
+    # create a flag specifying if create a new blank window or file
+    args.new_window = args.new and not args.files
+
     # check file existance and create if needed
-    if args.file:
+    if args.files:
         open_mode = 'r'
-        if args.new and not os.path.exists(args.file):
+        args.files = map(os.path.realpath, args.files)  # strip symlink
+        if args.new and not os.path.exists(args.files[0]):
             open_mode = 'w'   # overwrite mode to create new file
             # create directory if not exists yet
-            dirpath = os.path.dirname(args.file)
+            filepath = args.files[0]
+            dirpath = os.path.dirname(filepath)
             if dirpath:
                 try:
                     os.makedirs(dirpath)
@@ -251,10 +256,11 @@ def parse_args():
                     if err.errno != errno.EEXIST:
                         parser.error("argument FILE: {}".format(err))
         # check readability or create new one
-        try:
-            open(args.file, open_mode).close()
-        except IOError as err:
-            parser.error("argument FILE: {}".format(err))
+        for path in args.files:
+            try:
+                open(path, open_mode).close()
+            except IOError as err:
+                parser.error("argument FILE: {}".format(err))
 
     return args
 
@@ -269,10 +275,10 @@ def main(args, stdin):
     app.launch(background=args.background)
 
     # create document
-    if args.file:
-        # open file
-        path = os.path.realpath(args.file)
-        app.open(path)
+    if args.files:
+        # open files
+        for path in args.files:
+            app.open(path)
 
     elif stdin:
         # new document with piped text
@@ -281,7 +287,7 @@ def main(args, stdin):
         app.tell_document('set contents to "{}"'.format(sanitized_stdin))
         app.tell_document('set range of selection to {0, 0}')
 
-    elif args.new:
+    elif args.new_window:
         # new blank document
         app.tell('make new document')
 
@@ -320,7 +326,7 @@ def main(args, stdin):
         app.tell_document('scroll to caret')
 
     # wait for window close
-    if args.wait and (args.file or stdin or args.new):
+    if args.wait and (len(args.files) == 1 or stdin or args.new_window):
         window_id = app.window_id()
         while app.window_exists(window_id):
             time.sleep(WAIT_INTERVAL)
