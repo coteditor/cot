@@ -2,6 +2,12 @@
 Change Log
 ==========================
 
+2.5.1
+--------------------------
+
+- Fix an issue where file(s) cannot be opened if the default Python is Python 3.
+
+
 2.5.0
 --------------------------
 
