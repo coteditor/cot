@@ -134,7 +134,7 @@ class ScriptableApplication(object):
 
         # get unix id
         system_events = ScriptableApplication("System Events")
-        script = ('unix id of processes whose bundle identifier is "{}"'
+        script = ('unix id of 1st process whose bundle identifier is "{}"'
                   .format(self.bundle_identifier))
         self._pid = system_events.tell(script)
 
