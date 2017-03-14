@@ -2,6 +2,12 @@
 Change Log
 ==========================
 
+2.5.2
+--------------------------
+
+- Fix a possible hang under some specific environments.
+
+
 2.5.1
 --------------------------
 

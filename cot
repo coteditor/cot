@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
 cot
@@ -38,7 +38,7 @@ from subprocess import Popen, PIPE, CalledProcessError
 
 
 # meta data
-__version__ = '2.5.1'
+__version__ = '2.5.2'
 __description__ = 'command-line utility for CotEditor.'
 
 
@@ -104,7 +104,6 @@ def run_osascript(script, is_async=False):
 class ScriptableApplication(object):
     """OSA-Scriptable OS X application object.
     """
-    _pid = None
 
     def __init__(self, name):
         self.name = name
@@ -131,12 +130,6 @@ class ScriptableApplication(object):
             self.tell('run')
         else:
             self.tell('activate')
-
-        # get unix id
-        system_events = ScriptableApplication("System Events")
-        script = ('unix id of processes whose bundle identifier is "{}"'
-                  .format(self.bundle_identifier))
-        self._pid = system_events.tell(script)
 
     def open(self, path):
         """Open given file path in the application.
