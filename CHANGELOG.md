@@ -2,6 +2,12 @@
 Change Log
 ==========================
 
+2.5.3
+--------------------------
+
+- Avoid creating an extra blank document if `cot` command creates new document.
+
+
 2.5.2
 --------------------------
 

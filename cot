@@ -264,10 +264,8 @@ def main(args, stdin):
     app_identifier = bundle_path() or APPLICATION_NAME
     app = ScriptableApplication(app_identifier)
 
-    # launch
-    app.launch(background=args.background)
-
-    # create document
+    # create document (before launching app explicitly)
+    #   -> to avoid creating extra blank document
     if args.files:
         # open files
         for path in args.files:
@@ -283,6 +281,9 @@ def main(args, stdin):
     elif args.new_window:
         # new blank document
         app.tell('make new document')
+
+    # launch
+    app.launch(background=args.background)
 
     if app.tell('number of documents') is '0':
         return
