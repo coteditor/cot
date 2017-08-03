@@ -6,6 +6,7 @@ Change Log
 --------------------------
 
 - Avoid creating an extra blank document if `cot` command creates new document.
+- Fix an issue where launching application with `--background` option didn't make CotEditor visible.
 
 
 2.5.2

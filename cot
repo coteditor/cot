@@ -127,7 +127,7 @@ class ScriptableApplication(object):
             background (bool): Open in background?
         """
         if background:
-            self.tell('run')
+            self.tell('launch')
         else:
             self.tell('activate')
 
