@@ -44,7 +44,7 @@ __description__ = 'command-line utility for CotEditor.'
 
 # constants
 APPLICATION_NAME = 'CotEditor'
-WAIT_INTERVAL = 0.5
+WAIT_INTERVAL = 1.0
 
 
 # set encoding for file path
