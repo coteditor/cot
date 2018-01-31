@@ -10,7 +10,7 @@ Created by 1024jp on 2015-08-12.
 
 ------------------------------------------------------------------------------
 
-© 2015-2017 1024jp
+© 2015-2018 1024jp
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ from subprocess import Popen, PIPE, CalledProcessError
 
 
 # meta data
-__version__ = '2.5.2'
+__version__ = '2.5.3'
 __description__ = 'command-line utility for CotEditor.'
 
 
@@ -334,7 +334,7 @@ if __name__ == "__main__":
     fcntl.fcntl(sys.stdin.fileno(), fcntl.F_SETFL, os.O_NONBLOCK)  # non-block
     try:
         stdin = sys.stdin.read()
-    except:
+    except IOError:
         stdin = None
 
     main(args, stdin)
