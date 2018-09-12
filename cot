@@ -10,7 +10,7 @@ Created by 1024jp on 2015-08-12.
 
 ------------------------------------------------------------------------------
 
-© 2015-2017 1024jp
+© 2015-2018 1024jp
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -38,13 +38,13 @@ from subprocess import Popen, PIPE, CalledProcessError
 
 
 # meta data
-__version__ = '2.5.2'
+__version__ = '2.6.0'
 __description__ = 'command-line utility for CotEditor.'
 
 
 # constants
 APPLICATION_NAME = 'CotEditor'
-WAIT_INTERVAL = 0.5
+WAIT_INTERVAL = 1.0
 
 
 # set encoding for file path
@@ -56,7 +56,7 @@ if sys.version_info < (3, 0):
 # MARK: Bundle
 
 def bundle_path():
-    """Return application path if this script is bundled in an macOS application.
+    """Return application path if this script is bundled in an application.
 
     Returns:
         path (str): Path to .app directory or None if not found.
@@ -261,6 +261,15 @@ def parse_args():
 # MARK: - Main
 
 def main(args, stdin):
+    # store the client app and window
+    client_name = run_osascript(
+        'tell application "System Events" to return name of first application '
+        'process whose frontmost is true'
+    )
+    client = ScriptableApplication(client_name)
+    client_window_id = client.window_id()
+
+    # find the app to call
     app_identifier = bundle_path() or APPLICATION_NAME
     app = ScriptableApplication(app_identifier)
 
@@ -325,6 +334,11 @@ def main(args, stdin):
         while app.window_exists(window_id):
             time.sleep(WAIT_INTERVAL)
 
+        # raise client window to the front
+        client.tell('set frontmost of window id {} to true'.format(
+            client_window_id))
+        client.tell('activate')
+
 
 if __name__ == "__main__":
     # parse arguments
@@ -334,7 +348,7 @@ if __name__ == "__main__":
     fcntl.fcntl(sys.stdin.fileno(), fcntl.F_SETFL, os.O_NONBLOCK)  # non-block
     try:
         stdin = sys.stdin.read()
-    except:
+    except IOError:
         stdin = None
 
     main(args, stdin)

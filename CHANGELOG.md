@@ -2,6 +2,12 @@
 Change Log
 ==========================
 
+2.6.0
+--------------------------
+
+- Bring the window that called `cot` to the front after `--wait`.
+
+
 2.5.3
 --------------------------
 
