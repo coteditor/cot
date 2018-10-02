@@ -2,6 +2,12 @@
 Change Log
 ==========================
 
+2.6.1
+--------------------------
+
+- Fix an issue where `cot` command failed if the client application is non-scriptable.
+
+
 2.6.0
 --------------------------
 
