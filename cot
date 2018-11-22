@@ -136,7 +136,7 @@ class ScriptableApplication(object):
         Args:
             path (str): Path to file.
         """
-        path = path.replace('"', '\\"')
+        path = path.replace('\\', '\\\\').replace('"', '\\"')
         self.tell('open POSIX file "{}"'.format(path), is_async=True)
         # -> Opening a file that is already opened in the application tekes
         #    somehow extremely long time. So, we don't wait.
@@ -284,7 +284,7 @@ def main(args, stdin):
 
     elif stdin:
         # new document with piped text
-        sanitized_stdin = stdin.replace('"', '\\"')
+        sanitized_stdin = stdin.replace('\\', '\\\\').replace('"', '\\"')
         app.tell('make new document')
         app.tell_document('set contents to "{}"'.format(sanitized_stdin))
         app.tell_document('set range of selection to {0, 0}')
