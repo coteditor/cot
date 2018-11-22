@@ -2,6 +2,12 @@
 Change Log
 ==========================
 
+2.6.2
+--------------------------
+
+- Fix an issue where `cot` command failed to open paths or stdin containing backslash character.
+
+
 2.6.1
 --------------------------
 
