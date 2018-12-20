@@ -303,14 +303,15 @@ def main(args, stdin):
     if args.line is not None or args.column is not None:
         contents = app.tell_document('contents')
         lines = contents.splitlines(True)  # turn on keepends flag
+        if contents.endswith('\n'):  # restore the last empty line if exists
+            lines.append('')
 
         # sanitize line number
         line = args.line or 1  # line number starts with 1
         if line == 0:
             line = 1
         elif line < 0:  # negative line number counts from the last line
-            line_count = len(lines)
-            line = max(1, line_count - abs(line) + 1)
+            line = max(1, len(lines) + line + 1)
 
         # count location of line head
         location = 0

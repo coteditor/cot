@@ -2,6 +2,12 @@
 Change Log
 ==========================
 
+2.6.3
+--------------------------
+
+- Fix an issue where the last empty line was ignoed when specifying the cursor position with `--line` option.
+
+
 2.6.2
 --------------------------
 
