@@ -38,7 +38,7 @@ from subprocess import Popen, PIPE, CalledProcessError
 
 
 # meta data
-__version__ = '2.6.2'
+__version__ = '2.7.0'
 __description__ = 'command-line utility for CotEditor.'
 
 
@@ -320,9 +320,12 @@ def main(args, stdin):
 
         # sanitize and add column position
         if args.column is not None:
-            last_line = lines[line - 1]
-            column = min(args.column, len(last_line))
-            location += column
+            line_length = len(lines[line - 1])
+            if args.column <= 0:
+                column = max(args.column + line_length + 1, 1)
+            else:
+                column = min(args.column, line_length)
+        location += column - 1  # 1-based to 0-based
 
         # set selection range
         app.tell_document('set range of selection to {{{}, 0}}'.format(
