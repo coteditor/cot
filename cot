@@ -38,7 +38,7 @@ from subprocess import Popen, PIPE, CalledProcessError
 
 
 # meta data
-__version__ = '2.7.2'
+__version__ = '2.7.3'
 __description__ = 'command-line utility for CotEditor.'
 
 
@@ -106,27 +106,7 @@ def run_osascript(script, is_async=False):
     stdout, stderr = p.communicate(script.encode('utf-8'))
 
     if p.returncode:
-        error_message = stderr.decode('utf-8')
-        if '(-1743)' in stderr:
-            # show recovery suggestion for authorization error with
-            #     Apple events in Mojave (and later)
-            target_candidates = ['CotEditor', 'System Events']
-            target = next(t for t in target_candidates if t in error_message)
-            styled_target = Style.bold(target) if target else 'checkbox'
-            sys.stderr.write(
-                Style.warning('Error') + ': '
-                'User authorization required. '
-                'To authorize cot command, select ' +
-                styled_target + ' under your client application, '
-                'such as Terminal, in ' +
-                Style.bold('System Preferences') + ' > ' +
-                Style.bold('Security & Privacy') + ' > ' +
-                Style.bold('Privacy') + ' > ' +
-                Style.bold('Automation') + '.\n'
-            )
-        else:
-            sys.stderr.write(error_message)
-        sys.exit(p.returncode)
+        raise CalledProcessError(p.returncode, script, stderr.decode('utf-8'))
 
     result = stdout.decode('utf-8')
 
@@ -154,7 +134,11 @@ class ScriptableApplication(object):
             result (str): Return value of the script.
         """
         script = 'tell app "{}" to {}'.format(self.name, script)
-        return run_osascript(script, is_async)
+        try:
+            return run_osascript(script, is_async)
+        except CalledProcessError as error:
+            self._attempt_recovery(error)
+            raise error
 
     def launch(self, background=False):
         """Launch application.
@@ -218,6 +202,28 @@ class ScriptableApplication(object):
         except CalledProcessError:
             pass
         return result == 'true'
+
+    def _attempt_recovery(self, error):
+        """Attempt recovery from CalledProcessError.
+
+        Args:
+            error (CalledProcessError): Error via osascript.
+        """
+        if '(-1743)' in error.output:
+            # show recovery suggestion for authorization error with
+            #     Apple events in Mojave (and later)
+            sys.stderr.write(
+                Style.warning('Error') + ': '
+                'User authorization required. '
+                'To authorize cot command, select ' +
+                Style.bold(self.name) + ' under your client application, '
+                'such as Terminal, in ' +
+                Style.bold('System Preferences') + ' > ' +
+                Style.bold('Security & Privacy') + ' > ' +
+                Style.bold('Privacy') + ' > ' +
+                Style.bold('Automation') + '.\n'
+            )
+            sys.exit(error.returncode)
 
 
 # MARK: Args Parse
