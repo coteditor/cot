@@ -106,11 +106,12 @@ def run_osascript(script, is_async=False):
     stdout, stderr = p.communicate(script.encode('utf-8'))
 
     if p.returncode:
+        error_message = stderr.decode('utf-8')
         if '(-1743)' in stderr:
             # show recovery suggestion for authorization error with
             #     Apple events in Mojave (and later)
             target_candidates = ['CotEditor', 'System Events']
-            target = next(t for t in target_candidates if t in stderr)
+            target = next(t for t in target_candidates if t in error_message)
             styled_target = Style.bold(target) if target else 'checkbox'
             sys.stderr.write(
                 Style.warning('Error') + ': '
@@ -124,7 +125,7 @@ def run_osascript(script, is_async=False):
                 Style.bold('Automation') + '.\n'
             )
         else:
-            sys.stderr.write(stderr)
+            sys.stderr.write(error_message)
         sys.exit(p.returncode)
 
     result = stdout.decode('utf-8')
