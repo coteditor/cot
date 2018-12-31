@@ -86,19 +86,18 @@ def run_osascript(script, is_async=False):
     """
     if is_async:
         script = 'ignoring application responses\n' + script + '\nend ignoring'
-    p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    stdout, _ = p.communicate(script.encode('utf-8'))
+    p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE,
+              universal_newlines=True)
+    stdout, _ = p.communicate(script)
     if p.returncode:
         raise CalledProcessError(p.returncode, script)
 
-    result = stdout.decode('utf-8')
-
     # strip the last line ending
     #   -> Don't use `rstrip` since it removes multiple line endings.
-    if result.endswith('\n'):
-        result = result[:-1]
+    if stdout.endswith('\n'):
+        stdout = stdout[:-1]
 
-    return result
+    return stdout
 
 
 class ScriptableApplication(object):
