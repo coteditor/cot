@@ -53,6 +53,21 @@ if sys.version_info < (3, 0):
     sys.setdefaultencoding('utf8')
 
 
+# MARK: Style
+
+class Style:
+    """Style string for stdout/stderr.
+    """
+
+    @staticmethod
+    def bold(string):
+        return '\033[1m' + string + '\033[0m'
+
+    @staticmethod
+    def warning(string):
+        return '\033[31;1m' + string + '\033[0m'
+
+
 # MARK: Bundle
 
 def bundle_path():
@@ -91,7 +106,24 @@ def run_osascript(script, is_async=False):
               universal_newlines=True)
     stdout, stderr = p.communicate(script)
     if p.returncode:
-        sys.stderr.write(stderr)
+        if '(-1743)' in stderr:
+            # show recovery suggestion for authorization error with
+            #     Apple events in Mojave (and later)
+            target_candidates = ['CotEditor', 'System Events']
+            target = next(t for t in target_candidates if t in stderr)
+            styled_target = Style.bold(target) if target else 'checkbox'
+            sys.stderr.write(
+                Style.warning('Error') + ': '
+                'User authorization required. '
+                'To authorize cot command, select ' +
+                styled_target + ' under your client application in ' +
+                Style.bold('System Preferences') + ' > ' +
+                Style.bold('Security & Privacy') + ' > ' +
+                Style.bold('Pricavy') + ' > ' +
+                Style.bold('Automation') + '.\n'
+            )
+        else:
+            sys.stderr.write(stderr)
         sys.exit(p.returncode)
 
     # strip the last line ending
