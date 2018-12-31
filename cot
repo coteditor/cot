@@ -38,7 +38,7 @@ from subprocess import Popen, PIPE, CalledProcessError
 
 
 # meta data
-__version__ = '2.7.0'
+__version__ = '2.7.1'
 __description__ = 'command-line utility for CotEditor.'
 
 
@@ -116,7 +116,8 @@ def run_osascript(script, is_async=False):
                 Style.warning('Error') + ': '
                 'User authorization required. '
                 'To authorize cot command, select ' +
-                styled_target + ' under your client application in ' +
+                styled_target + ' under your client application, '
+                'such as Terminal, in ' +
                 Style.bold('System Preferences') + ' > ' +
                 Style.bold('Security & Privacy') + ' > ' +
                 Style.bold('Pricavy') + ' > ' +
