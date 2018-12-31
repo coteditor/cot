@@ -38,7 +38,7 @@ from subprocess import Popen, PIPE, CalledProcessError
 
 
 # meta data
-__version__ = '2.7.2'
+__version__ = '2.7.3'
 __description__ = 'command-line utility for CotEditor.'
 
 
@@ -124,9 +124,9 @@ def run_osascript(script, is_async=False):
                 Style.bold('Privacy') + ' > ' +
                 Style.bold('Automation') + '.\n'
             )
+            sys.exit(p.returncode)
         else:
-            sys.stderr.write(error_message)
-        sys.exit(p.returncode)
+            raise CalledProcessError(p.returncode, script, error_message)
 
     result = stdout.decode('utf-8')
 
