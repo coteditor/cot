@@ -363,7 +363,7 @@ def main(args, stdin):
                 column = max(args.column + line_length + 1, 1)
             else:
                 column = min(args.column, line_length)
-        location += column - 1  # 1-based to 0-based
+            location += column - 1  # 1-based to 0-based
 
         # set selection range
         app.tell_document('set range of selection to {{{}, 0}}'.format(
