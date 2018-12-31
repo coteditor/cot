@@ -102,9 +102,9 @@ def run_osascript(script, is_async=False):
     if is_async:
         script = 'ignoring application responses\n' + script + '\nend ignoring'
 
-    p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE,
-              universal_newlines=True)
-    stdout, stderr = p.communicate(script)
+    p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    stdout, stderr = p.communicate(script.encode('utf-8'))
+
     if p.returncode:
         if '(-1743)' in stderr:
             # show recovery suggestion for authorization error with
@@ -127,12 +127,14 @@ def run_osascript(script, is_async=False):
             sys.stderr.write(stderr)
         sys.exit(p.returncode)
 
+    result = stdout.decode('utf-8')
+
     # strip the last line ending
     #   -> Don't use `rstrip` since it removes multiple line endings.
-    if stdout.endswith('\n'):
-        stdout = stdout[:-1]
+    if result.endswith('\n'):
+        result = result[:-1]
 
-    return stdout
+    return result
 
 
 class ScriptableApplication(object):
