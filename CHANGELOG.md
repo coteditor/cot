@@ -2,6 +2,14 @@
 Change Log
 ==========================
 
+2.7.0
+--------------------------
+
+- Change `--column` count from 0-based to 1-based.
+- Fix an issue where the last empty line was ignoed when specifying the cursor position with `--line` option.
+- Improve error message when failed.
+
+
 2.6.2
 --------------------------
 

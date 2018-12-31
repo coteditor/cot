@@ -38,7 +38,7 @@ from subprocess import Popen, PIPE, CalledProcessError
 
 
 # meta data
-__version__ = '2.6.2'
+__version__ = '2.7.0'
 __description__ = 'command-line utility for CotEditor.'
 
 
@@ -51,6 +51,21 @@ WAIT_INTERVAL = 1.0
 if sys.version_info < (3, 0):
     reload(sys)
     sys.setdefaultencoding('utf8')
+
+
+# MARK: Style
+
+class Style:
+    """Style string for stdout/stderr.
+    """
+
+    @staticmethod
+    def bold(string):
+        return '\033[1m' + string + '\033[0m'
+
+    @staticmethod
+    def warning(string):
+        return '\033[31;1m' + string + '\033[0m'
 
 
 # MARK: Bundle
@@ -86,19 +101,37 @@ def run_osascript(script, is_async=False):
     """
     if is_async:
         script = 'ignoring application responses\n' + script + '\nend ignoring'
-    p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    stdout, _ = p.communicate(script.encode('utf-8'))
-    if p.returncode:
-        raise CalledProcessError(p.returncode, script)
 
-    result = stdout.decode('utf-8')
+    p = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE,
+              universal_newlines=True)
+    stdout, stderr = p.communicate(script)
+    if p.returncode:
+        if '(-1743)' in stderr:
+            # show recovery suggestion for authorization error with
+            #     Apple events in Mojave (and later)
+            target_candidates = ['CotEditor', 'System Events']
+            target = next(t for t in target_candidates if t in stderr)
+            styled_target = Style.bold(target) if target else 'checkbox'
+            sys.stderr.write(
+                Style.warning('Error') + ': '
+                'User authorization required. '
+                'To authorize cot command, select ' +
+                styled_target + ' under your client application in ' +
+                Style.bold('System Preferences') + ' > ' +
+                Style.bold('Security & Privacy') + ' > ' +
+                Style.bold('Pricavy') + ' > ' +
+                Style.bold('Automation') + '.\n'
+            )
+        else:
+            sys.stderr.write(stderr)
+        sys.exit(p.returncode)
 
     # strip the last line ending
     #   -> Don't use `rstrip` since it removes multiple line endings.
-    if result.endswith('\n'):
-        result = result[:-1]
+    if stdout.endswith('\n'):
+        stdout = stdout[:-1]
 
-    return result
+    return stdout
 
 
 class ScriptableApplication(object):
@@ -265,11 +298,15 @@ def parse_args():
 
 def main(args, stdin):
     # store the client app and window
-    system = ScriptableApplication('System Events')
-    client_name = system.tell('name of first process whose frontmost is true')
+    client = None
+    client_window_id = None
+    if args.wait:
+        system = ScriptableApplication('System Events')
+        client_name = system.tell('name of first process whose frontmost is '
+                                  'true')
 
-    client = ScriptableApplication(client_name)
-    client_window_id = client.window_id()
+        client = ScriptableApplication(client_name)
+        client_window_id = client.window_id()
 
     # find the app to call
     app_identifier = bundle_path() or APPLICATION_NAME
@@ -303,14 +340,15 @@ def main(args, stdin):
     if args.line is not None or args.column is not None:
         contents = app.tell_document('contents')
         lines = contents.splitlines(True)  # turn on keepends flag
+        if contents.endswith('\n'):  # restore the last empty line if exists
+            lines.append('')
 
         # sanitize line number
         line = args.line or 1  # line number starts with 1
         if line == 0:
             line = 1
         elif line < 0:  # negative line number counts from the last line
-            line_count = len(lines)
-            line = max(1, line_count - abs(line) + 1)
+            line = max(1, len(lines) + line + 1)
 
         # count location of line head
         location = 0
@@ -319,9 +357,12 @@ def main(args, stdin):
 
         # sanitize and add column position
         if args.column is not None:
-            last_line = lines[line - 1]
-            column = min(args.column, len(last_line))
-            location += column
+            line_length = len(lines[line - 1])
+            if args.column <= 0:
+                column = max(args.column + line_length + 1, 1)
+            else:
+                column = min(args.column, line_length)
+        location += column - 1  # 1-based to 0-based
 
         # set selection range
         app.tell_document('set range of selection to {{{}, 0}}'.format(
