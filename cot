@@ -10,7 +10,7 @@ Created by 1024jp on 2015-08-12.
 
 ------------------------------------------------------------------------------
 
-© 2015-2018 1024jp
+© 2015-2019 1024jp
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ from subprocess import Popen, PIPE, CalledProcessError
 
 
 # meta data
-__version__ = '2.7.1'
+__version__ = '2.7.2'
 __description__ = 'command-line utility for CotEditor.'
 
 
@@ -121,7 +121,7 @@ def run_osascript(script, is_async=False):
                 'such as Terminal, in ' +
                 Style.bold('System Preferences') + ' > ' +
                 Style.bold('Security & Privacy') + ' > ' +
-                Style.bold('Pricavy') + ' > ' +
+                Style.bold('Privacy') + ' > ' +
                 Style.bold('Automation') + '.\n'
             )
         else:
