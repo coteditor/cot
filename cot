@@ -265,11 +265,15 @@ def parse_args():
 
 def main(args, stdin):
     # store the client app and window
-    system = ScriptableApplication('System Events')
-    client_name = system.tell('name of first process whose frontmost is true')
+    client = None
+    client_window_id = None
+    if args.wait:
+        system = ScriptableApplication('System Events')
+        client_name = system.tell('name of first process whose frontmost is '
+                                  'true')
 
-    client = ScriptableApplication(client_name)
-    client_window_id = client.window_id()
+        client = ScriptableApplication(client_name)
+        client_window_id = client.window_id()
 
     # find the app to call
     app_identifier = bundle_path() or APPLICATION_NAME
