@@ -2,6 +2,12 @@
 Change Log
 ==========================
 
+2.7.4
+--------------------------
+
+- Fix an issue where stack trace displayed when using `--wait` option with some clients other than Terminal.app.
+
+
 2.7.0
 --------------------------
 
