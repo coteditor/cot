@@ -369,7 +369,7 @@ def main(args, stdin):
         if args.column is not None:
             line_length = len(lines[line - 1])
             if args.column <= 0:
-                column = max(args.column + line_length + 1, 1)
+                column = max(args.column + line_length + 2, 1)
             else:
                 column = min(args.column, line_length)
             location += column - 1  # 1-based to 0-based
