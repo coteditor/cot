@@ -2,6 +2,13 @@
 Change Log
 ==========================
 
+2.7.4
+--------------------------
+
+- Fix an issue where stack trace displayed when using `--wait` option with some clients other than Terminal.app.
+- Fix an issue where `--column` could misplace the insertion point when a negative number was given.
+
+
 2.7.0
 --------------------------
 

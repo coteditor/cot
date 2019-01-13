@@ -38,7 +38,7 @@ from subprocess import Popen, PIPE, CalledProcessError
 
 
 # meta data
-__version__ = '2.7.3'
+__version__ = '2.7.4'
 __description__ = 'command-line utility for CotEditor.'
 
 
@@ -312,8 +312,8 @@ def main(args, stdin):
     client_window_id = None
     if args.wait:
         system = ScriptableApplication('System Events')
-        client_name = system.tell('name of first process whose frontmost is '
-                                  'true')
+        client_name = system.tell('get path of application file of application '
+                                  'processes whose frontmost is true')
 
         client = ScriptableApplication(client_name)
         client_window_id = client.window_id()
@@ -369,7 +369,7 @@ def main(args, stdin):
         if args.column is not None:
             line_length = len(lines[line - 1])
             if args.column <= 0:
-                column = max(args.column + line_length + 1, 1)
+                column = max(args.column + line_length + 2, 1)
             else:
                 column = min(args.column, line_length)
             location += column - 1  # 1-based to 0-based
@@ -389,7 +389,7 @@ def main(args, stdin):
 
         # raise client window to the front
         if client_window_id:
-            client.tell('set frontmost of window id {} to true'.format(
+            client.tell('set index of window id {} to 1'.format(
                 client_window_id))
         try:
             client.tell('activate')
