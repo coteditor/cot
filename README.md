@@ -2,7 +2,7 @@
 `cot` command-line tool
 =============================
 
-[![Build Status](https://travis-ci.org/coteditor/cot.svg)](https://travis-ci.org/coteditor/cot)
+[![Build Status](https://travis-ci.com/coteditor/cot.svg)](https://travis-ci.com/coteditor/cot)
 
 The command-line helper tool for [CotEditor](https://coteditor.com).
 
