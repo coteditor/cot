@@ -312,8 +312,8 @@ def main(args, stdin):
     client_window_id = None
     if args.wait:
         system = ScriptableApplication('System Events')
-        client_name = system.tell('get path of application file of application '
-                                  'processes whose frontmost is true')
+        client_name = system.tell('get path of application file of application'
+                                  ' processes whose frontmost is true')
 
         client = ScriptableApplication(client_name)
         client_window_id = client.window_id()
