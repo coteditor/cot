@@ -10,7 +10,7 @@ Created by 1024jp on 2015-08-12.
 
 ------------------------------------------------------------------------------
 
-© 2015-2019 1024jp
+© 2015-2021 1024jp
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -402,10 +402,9 @@ if __name__ == "__main__":
     args = parse_args()
 
     # read piped text if exists
-    fcntl.fcntl(sys.stdin.fileno(), fcntl.F_SETFL, os.O_NONBLOCK)  # non-block
-    try:
-        stdin = sys.stdin.read()
-    except IOError:
+    if sys.stdin.isatty():
         stdin = None
+    else:
+        stdin = ''.join(sys.stdin)
 
     main(args, stdin)
