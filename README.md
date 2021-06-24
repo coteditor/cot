@@ -2,13 +2,13 @@
 `cot` command-line tool
 =============================
 
-[![Build Status](https://travis-ci.org/coteditor/cot.svg)](https://travis-ci.org/coteditor/cot)
+[![Test Status](https://github.com/coteditor/cot/workflows/Test/badge.svg)](https://github.com/coteditor/cot/actions)
 
 The command-line helper tool for [CotEditor](https://coteditor.com).
 
 
 License
 -----------------------------
-© 2015-2019 1024jp.
+© 2015-2021 1024jp.
 
 The source code is distributed under the terms of the __Apache License, Version 2.0__. See the [LICENSE](LICENSE) for details.
