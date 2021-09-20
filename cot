@@ -348,38 +348,8 @@ def main(args, stdin):
 
     # jump to location
     if args.line is not None or args.column is not None:
-        contents = app.tell_document('contents')
-        lines = contents.splitlines(True)  # turn on keepends flag
-        if contents.endswith('\n'):  # restore the last empty line if exists
-            lines.append('')
-
-        # sanitize line number
-        line = args.line or 1  # line number starts with 1
-        if line == 0:
-            line = 1
-        elif line < 0:  # negative line number counts from the last line
-            line = max(1, len(lines) + line + 1)
-
-        # count location of line head
-        location = 0
-        for a_line in lines[0:line - 1]:
-            location += len(a_line)
-
-        # sanitize and add column position
-        if args.column is not None:
-            line_length = len(lines[line - 1])
-            if args.column <= 0:
-                column = max(args.column + line_length + 2, 1)
-            else:
-                column = min(args.column, line_length)
-            location += column - 1  # 1-based to 0-based
-
-        # set selection range
-        app.tell_document('set range of selection to {{{}, 0}}'.format(
-            location))
-
-        # jump
-        app.tell_document('scroll to caret')
+        app.tell_document('jump to line {} column {}'.format(
+            args.line or 1, args.column or 0))
 
     # wait for window close
     if args.wait and (len(args.files) == 1 or stdin or args.new_window):
