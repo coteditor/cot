@@ -38,7 +38,7 @@ from subprocess import Popen, PIPE, CalledProcessError
 
 
 # meta data
-__version__ = '2.7.4'
+__version__ = '2.9.0'
 __description__ = 'command-line utility for CotEditor.'
 
 
