@@ -6,6 +6,7 @@ Change Log
 --------------------------
 
 - Now cot command requres CotEditor 4.1.0 or later.
+- Fix to work also with Python 3.
 
 
 2.8.0
