@@ -2,6 +2,12 @@
 Change Log
 ==========================
 
+2.9.2
+--------------------------
+
+- Invoke `python3` instead of `python` to run `cot` command itself.
+
+
 2.9.1
 --------------------------
 

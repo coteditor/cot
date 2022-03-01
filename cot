@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 """
 cot
 
@@ -38,19 +37,13 @@ from subprocess import Popen, PIPE, CalledProcessError
 
 
 # meta data
-__version__ = '2.9.1'
+__version__ = '2.9.2'
 __description__ = 'command-line utility for CotEditor.'
 
 
 # constants
 APPLICATION_NAME = 'CotEditor'
 WAIT_INTERVAL = 1.0
-
-
-# set encoding for file path
-if sys.version_info < (3, 0):
-    reload(sys)
-    sys.setdefaultencoding('utf8')
 
 
 # MARK: Style
