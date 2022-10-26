@@ -1,0 +1,26 @@
+.\" Manpage for cot.
+.\" Contact https://github.com/coteditor/ to correct errors or typos.
+.TH cot 1 “Oct-2022” CotEditor “cot manpage"
+.SH NAME
+cot \- Command-line helper tool for CotEditor
+.SH SYNOPSIS
+cot [filename]
+.SH DESCRIPTION
+cot is a command-line helper tool for CotEditor.
+.SH USAGE
+cot [-h] [-v] [-w] [-g] [-n] [-l LINE] [-c COLUMN] [FILE ...]
+.SH OPTIONS
+.IP "-h|--help"
+Prints help
+.IP "-v|—version"
+Prints version
+.IP   -w|--wait
+wait for opened file to be closed
+.IP   -g|--background
+do not bring the application to the foreground
+.IP   -n|--new
+create a new blank document
+.IP   -l LINE|--line LINE
+jump to specific line in opened document
+.IP   -c COLUMN|--column COLUMN
+jump to specific column in opened document
