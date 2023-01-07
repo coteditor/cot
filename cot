@@ -120,6 +120,7 @@ class ScriptableApplication(object):
 
         Args:
             script (str): OSA command
+            is_async (bool):  If need to wait for finish.
         Returns:
             result (str): Return value of the script.
         """
@@ -149,7 +150,7 @@ class ScriptableApplication(object):
         """
         path = path.replace('\\', '\\\\').replace('"', '\\"')
         self.tell('open POSIX file "{}"'.format(path), is_async=True)
-        # -> Opening a file that is already opened in the application tekes
+        # -> Opening a file that is already opened in the application takes
         #    somehow extremely long time. So, we don't wait.
 
     def tell_document(self, script, index=1):
@@ -181,7 +182,7 @@ class ScriptableApplication(object):
         """Check if window exists.
 
         Args:
-            window_id (str): identifier of window to check existance.
+            window_id (str): identifier of window to check existence.
         Returns:
             result (bool): Window exists?
         """
@@ -269,7 +270,7 @@ def parse_args():
     # create a flag specifying if create a new blank window or file
     args.new_window = args.new and not args.files
 
-    # check file existance and create if needed
+    # check file existence and create if needed
     if args.files:
         open_mode = 'r'
         args.files = list(map(os.path.realpath, args.files))  # strip symlink
