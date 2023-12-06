@@ -9,7 +9,7 @@ Created by 1024jp on 2015-08-12.
 
 ------------------------------------------------------------------------------
 
-© 2015-2022 1024jp
+© 2015-2023 1024jp
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,11 +25,8 @@ limitations under the License.
 
 """
 
-from __future__ import print_function
-
 import argparse
 import errno
-import fcntl
 import os
 import sys
 import time
@@ -37,7 +34,7 @@ from subprocess import Popen, PIPE, CalledProcessError
 
 
 # meta data
-__version__ = '2.9.2'
+__version__ = '2.10.0'
 __description__ = 'command-line utility for CotEditor.'
 
 
@@ -123,6 +120,7 @@ class ScriptableApplication(object):
 
         Args:
             script (str): OSA command
+            is_async (bool):  If need to wait for finish.
         Returns:
             result (str): Return value of the script.
         """
@@ -152,7 +150,7 @@ class ScriptableApplication(object):
         """
         path = path.replace('\\', '\\\\').replace('"', '\\"')
         self.tell('open POSIX file "{}"'.format(path), is_async=True)
-        # -> Opening a file that is already opened in the application tekes
+        # -> Opening a file that is already opened in the application takes
         #    somehow extremely long time. So, we don't wait.
 
     def tell_document(self, script, index=1):
@@ -184,7 +182,7 @@ class ScriptableApplication(object):
         """Check if window exists.
 
         Args:
-            window_id (str): identifier of window to check existance.
+            window_id (str): identifier of window to check existence.
         Returns:
             result (bool): Window exists?
         """
@@ -258,6 +256,10 @@ def parse_args():
                         default=False,
                         help="create a new blank document"
                         )
+    parser.add_argument('-s', '--syntax',
+                        type=str,
+                        help="set specific syntax to opened document"
+                        )
     parser.add_argument('-l', '--line',
                         type=int,
                         help="jump to specific line in opened document"
@@ -272,7 +274,7 @@ def parse_args():
     # create a flag specifying if create a new blank window or file
     args.new_window = args.new and not args.files
 
-    # check file existance and create if needed
+    # check file existence and create if needed
     if args.files:
         open_mode = 'r'
         args.files = list(map(os.path.realpath, args.files))  # strip symlink
@@ -317,10 +319,12 @@ def main(args, stdin):
 
     # create document (before launching app explicitly)
     #   -> to avoid creating extra blank document
+    document_count = 0
     if args.files:
         # open files
         for path in args.files:
             app.open(path)
+        document_count = len(args.files)
 
     elif stdin:
         # new document with piped text
@@ -328,13 +332,21 @@ def main(args, stdin):
         app.tell('make new document')
         app.tell_document('set contents to "{}"'.format(sanitized_stdin))
         app.tell_document('set range of selection to {0, 0}')
+        document_count = 1
 
     elif args.new_window:
         # new blank document
         app.tell('make new document')
+        document_count = 1
 
     # launch
     app.launch(background=args.background)
+
+    # set syntax
+    if args.syntax is not None and document_count > 0:
+        for index in range(document_count):
+            app.tell_document('set coloring style to "{}"'.format(args.syntax),
+                              index + 1)
 
     if app.tell('number of documents') == '0':
         return
