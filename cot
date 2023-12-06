@@ -9,7 +9,7 @@ Created by 1024jp on 2015-08-12.
 
 ------------------------------------------------------------------------------
 
-© 2015-2022 1024jp
+© 2015-2023 1024jp
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ from subprocess import Popen, PIPE, CalledProcessError
 
 
 # meta data
-__version__ = '2.9.2'
+__version__ = '2.10.0'
 __description__ = 'command-line utility for CotEditor.'
 
 
@@ -256,6 +256,10 @@ def parse_args():
                         default=False,
                         help="create a new blank document"
                         )
+    parser.add_argument('-s', '--syntax',
+                        type=str,
+                        help="set specific syntax to opened document"
+                        )
     parser.add_argument('-l', '--line',
                         type=int,
                         help="jump to specific line in opened document"
@@ -315,10 +319,12 @@ def main(args, stdin):
 
     # create document (before launching app explicitly)
     #   -> to avoid creating extra blank document
+    document_count = 0
     if args.files:
         # open files
         for path in args.files:
             app.open(path)
+        document_count = len(args.files)
 
     elif stdin:
         # new document with piped text
@@ -326,13 +332,21 @@ def main(args, stdin):
         app.tell('make new document')
         app.tell_document('set contents to "{}"'.format(sanitized_stdin))
         app.tell_document('set range of selection to {0, 0}')
+        document_count = 1
 
     elif args.new_window:
         # new blank document
         app.tell('make new document')
+        document_count = 1
 
     # launch
     app.launch(background=args.background)
+
+    # set syntax
+    if args.syntax is not None and document_count > 0:
+        for index in range(document_count):
+            app.tell_document('set coloring style to "{}"'.format(args.syntax),
+                              index + 1)
 
     if app.tell('number of documents') == '0':
         return

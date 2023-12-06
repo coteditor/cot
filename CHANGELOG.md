@@ -2,6 +2,12 @@
 Change Log
 ==========================
 
+2.10.0
+--------------------------
+
+- Add `--syntax` (`-s`) option to set desired syntax to the documents just opened.
+
+
 2.9.2
 --------------------------
 
