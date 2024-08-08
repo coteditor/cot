@@ -9,7 +9,7 @@ Created by 1024jp on 2015-08-12.
 
 ------------------------------------------------------------------------------
 
-© 2015-2023 1024jp
+© 2015-2024 1024jp
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -377,7 +377,7 @@ if __name__ == "__main__":
     args = parse_args()
 
     # read piped text if exists
-    if sys.stdin.isatty():
+    if args.files or sys.stdin.isatty():
         stdin = None
     else:
         stdin = ''.join(sys.stdin)
