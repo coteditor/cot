@@ -276,8 +276,13 @@ def parse_args():
 
     # check file existence and create if needed
     if args.files:
+        # strip symlink
+        args.files = list(map(os.path.realpath, args.files))
+        # skip file check if file is directory
+        if not args.new and os.path.isdir(args.files[0]):
+            return args
+        
         open_mode = 'r'
-        args.files = list(map(os.path.realpath, args.files))  # strip symlink
         if args.new and not os.path.exists(args.files[0]):
             open_mode = 'w'   # overwrite mode to create new file
             # create directory if not exists yet
